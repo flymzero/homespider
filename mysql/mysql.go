@@ -2,10 +2,9 @@ package mysql
 
 import (
 	"database/sql"
-	"fmt"
-	"log"
 
 	"github.com/flymzero/homespider"
+	"github.com/flymzero/homespider/logs"
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -18,15 +17,46 @@ const (
 
 func init() {
 	var err error
-	db, err = sql.Open(mysqlType, mysqlDSName) //sql.Open(homespider.MYSQL_TYEP, "root:5513505@tcp(localhost:3306)/job_spider?charset=utf8")
+	db, err = sql.Open(mysqlType, mysqlDSName)
 	if err != nil {
-		log.Fatal(err)
-	} else {
-		fmt.Print("连接成功")
+		logs.OtherLog(logs.Fatal, err)
 	}
+	err = db.Ping()
+	if err != nil {
+		logs.OtherLog(logs.Fatal, err)
+	}
+
 }
 
-func Temp() {
-	fmt.Print(db)
+func Query(query string) (*sql.Rows, error) {
+	return db.Query(query)
+}
+
+func CreateTable(query string) error {
+	_, err := db.Exec(query)
+	return err
+}
+
+func Exec(query string) (sql.Result, error) {
+	return db.Exec(query)
+}
+
+func Begin(f func(t *sql.Tx)) error {
+	tx, err := db.Begin()
+	if err != nil {
+		return err
+	}
+	f(tx)
+	return tx.Commit()
 
 }
+
+// func Temp() {
+// 	_, err := db.Exec(`CREATE TABLE job51_city (
+// 		id int(20) NOT NULL,
+// 		city_id varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+// 		city_name varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+// 		PRIMARY KEY (id)
+// 		);`)
+
+// }

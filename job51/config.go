@@ -6,7 +6,7 @@ const (
 )
 
 type Job51TableCity struct {
-	Id       string `json:"id"`
+	Id       int    `json:"id"`
 	CityId   string `json:"city_id"`
 	CityName string `json:"city_name"`
 }
