@@ -28,6 +28,10 @@ func init() {
 
 }
 
+func QueryRow(query string) *sql.Row {
+	return db.QueryRow(query)
+}
+
 func Query(query string) (*sql.Rows, error) {
 	return db.Query(query)
 }

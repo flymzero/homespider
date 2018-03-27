@@ -4,11 +4,16 @@ package homespider
 const (
 	MYSQL_TYEP = "mysql"
 	MYSQL_USER = "root"
-	MYSQL_PWD  = "123456"
+	MYSQL_PWD  = "5513505"
 	MYSQL_IP   = "localhost"
 	MYSQL_PORT = "3306"
 	//MYSQL_CHARSET  = "utf8"
 	MYSQL_DATABASE = "home_spider"
+)
+
+const (
+	SLEEPTIMEMIN = 5
+	SLEEPTIMEMAX = 15
 )
 
 /************log*************/
