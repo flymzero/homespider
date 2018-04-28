@@ -397,3 +397,37 @@ func insertDetailIntoSql(jobdetail *Job51TableDetail) {
 		}
 	}
 }
+
+func GetJobDetail() []map[string]interface{} {
+	jd := Job51TableDetail{}
+	jt := reflect.TypeOf(jd)
+
+	rows, err := mysql.Query(fmt.Sprintf("SELECT %s, %s, %s, %s, %s FROM %s WHERE %s != 0 AND %s != 0",
+		jt.Field(4).Tag.Get("json"),
+		jt.Field(5).Tag.Get("json"),
+		jt.Field(7).Tag.Get("json"),
+		jt.Field(10).Tag.Get("json"),
+		jt.Field(11).Tag.Get("json"),
+		JOB51_TABLE_Detail,
+		jt.Field(10).Tag.Get("json"),
+		jt.Field(11).Tag.Get("json")))
+	if err != nil {
+		logs.OtherLog(logs.Fatal, err)
+	}
+	var jobName, jobMoney, company string
+	var lng, lat float64
+	var result []map[string]interface{}
+	for rows.Next() {
+		if err := rows.Scan(&jobName, &jobMoney, &company, &lng, &lat); err != nil {
+			continue
+			// logs.OtherLog(logs.Fatal, err)
+		} else {
+			var temp = map[string]interface{}{}
+			//fmt.Printf("%s %s %s %f %f\n", jobName, jobMoney, company, lng, lat)
+			temp["name"] = jobName + "\n" + jobMoney + "\n" + company
+			temp["value"] = []float64{lng, lat}
+			result = append(result, temp)
+		}
+	}
+	return result
+}

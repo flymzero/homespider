@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+   <head>
+       <meta charset="utf-8">
+   </head>
+   <body style="height: 100%; margin: 0">
+       <div id="main" style="height: 100%"></div>
+
+       <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+       <script type="text/javascript" src="./static/jquery.js"></script>
+       <script type="text/javascript" src="./static/echarts.js"></script>
+       <script type="text/javascript" src="./static/bmap.min.js"></script>
+       <script type="text/javascript">
+        //
+        let colorMap = {
+            "富阳市":"rgba(214,0,66,0.4)", 
+            "拱墅区":"rgba(49,169,167,0.4)", 
+            "滨江区":"rgba(202,163,71,0.4)",
+            "淳安县":"rgba(51,168,94,0.4)", 
+            "建德市":"rgba(251,77,83,0.4)", 
+            "江干区":"rgba(84,130,255,0.4)", 
+            "临安市":"rgba(229,251,118,0.4)",
+            "上城区":"rgba(20,129,74,0.4)",
+            "桐庐县":"rgba(142,122,237,0.4)",
+            "西湖区":"rgba(251,75,56,0.4)",
+            "下城区":"rgba(112,166,227,0.4)",
+            "萧山区":"rgba(35,52,112,0.4)",
+            "余杭区":"rgba(211,183,128,0.4)"
+        };
+        //分类geojson数据显示到百度地图上用
+        function getHangzhouList(hzJson){
+            var numList = [];
+            var nameList = [];
+            var pointList = [];
+            console.log(hzJson["features"]);
+            hzJson["features"].forEach(element => {
+                let name = element["properties"]["name"];
+
+                element["geometry"]["coordinates"].forEach(element2 => {
+                    nameList.push(name);
+                    pointList.push(element2[0]);
+                    numList.push(nameList.length-1);
+                });
+            });
+            console.log(nameList);
+            return [numList,nameList,pointList];
+        }
+        //
+        var myChart = echarts.init(document.getElementById('main'));
+        //
+        //myChart.showLoading();
+        //获取地图区域文件
+        $.get('hangzhou.json', function (hzJson) {
+            var hangzhouData = getHangzhouList(JSON.parse(hzJson));
+            //自定义组件区域的回调函数
+            function renderItem(params, api) {
+                let name = hangzhouData[1][api.value(0)];
+                let pointList = hangzhouData[2][api.value(0)];
+                var newPointList = [];
+                pointList.forEach(element => {
+                    newPointList.push(api.coord(element));
+                });
+                return {
+                    type: 'polygon',
+                    shape: {
+                        points: newPointList
+                    },
+                    style: api.style({fill: colorMap[name], stroke: 'black'}),
+                    styleEmphasis: api.style({fill: colorMap[name], stroke: 'white'})
+                };
+            }
+            //
+            myChart.hideLoading();
+            //
+            echarts.registerMap('hangzhou', hzJson,{
+                'temp': {
+                    left: -1,
+                    top: 1,
+                    width: 1
+                }
+            });
+            option = {
+                //标题
+                title: {
+                    text: '杭州刚需数据',
+                    left: '20',
+                    top: '15',
+                    textStyle:{
+                        color: '#123',
+                        fontSize: '20',
+                    },
+                },
+                //
+                series: [
+                {
+                    type: 'custom',
+                    coordinateSystem: 'bmap',
+                    renderItem: renderItem,
+                    animation: false,
+                    itemStyle: {
+            emphasis: {
+                color: 'yellow'
+            }
+        },
+        encode: {
+            tooltip: 2
+        },
+        data: hangzhouData[0]
+        },
+        //
+        {
+            type: "scatter",
+            coordinateSystem: 'bmap',
+            data:{{.job}},//[{name:"namedfdsfsdf\nhdfdsfsddfdfhh\ndsdfffdgfdg\n你妈个非官方大哥大",value:[119.431949492188,30.0988430000001]}],
+            symbolSize: 12,
+            label: {
+                normal: {
+                    formatter: '{b}',
+                    position: 'right',
+                    color: '#fff',
+                    backgroundColor:'#000',
+                    borderRadius:6,
+                    padding:[4, 4, 4, 4],
+                    show: false
+                },
+                emphasis: {
+                    show: true
+                }
+            },
+            itemStyle: {
+                normal: {
+                    color: '#ddb926'
+                }
+            }
+        }
+            ],
+                    
+            //
+            bmap: {
+                center: [119.431949492188,30.0988430000001],
+        zoom: 17,
+        roam: true,
+                  },
+            };
+
+            myChart.setOption(option);
+        });
+       </script>
+   </body>
+</html>

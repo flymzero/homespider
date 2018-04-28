@@ -60,6 +60,10 @@ func resetLogs() {
 }
 
 func WebLog(level string, v ...interface{}) {
+	if level == Info {
+		fmt.Printf("%s %s", level, fmt.Sprint(v...))
+		return
+	}
 	resetLogs()
 	webLog.SetPrefix(level)
 	s := fmt.Sprint(v...)
@@ -71,6 +75,10 @@ func WebLog(level string, v ...interface{}) {
 }
 
 func OtherLog(level string, v ...interface{}) {
+	if level == Info {
+		fmt.Printf("%s %s", level, fmt.Sprint(v...))
+		return
+	}
 	resetLogs()
 	otherLog.SetPrefix(level)
 	s := fmt.Sprint(v...)
